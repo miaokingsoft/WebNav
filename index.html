@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>网站导航 - 闲沐工坊</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>个人网站导航</h1>
+        </header>
+        
+        <main>
+            <div id="categories-container">
+                <!-- 分类和网站卡片将通过JavaScript动态加载 -->
+            </div>
+        </main>
+    </div>
+    
+    <!-- 添加网站的模态框 -->
+    <div id="add-site-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>添加网站</h2>
+            <form id="add-site-form">
+                <label for="modal-site-category">分类:</label>
+                <select id="modal-site-category"></select>
+                <label for="modal-site-name">网站名称:</label>
+                <input type="text" id="modal-site-name" placeholder="网站名称" required>
+                <label for="modal-site-url">网站链接:</label>
+                <input type="url" id="modal-site-url" placeholder="网站链接" required>
+                <button type="submit">添加网站</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- 编辑网站的模态框 -->
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>编辑网站</h2>
+            <form id="edit-site-form">
+                <input type="hidden" id="edit-site-id">
+                <label for="edit-site-category">分类:</label>
+                <select id="edit-site-category"></select>
+                <label for="edit-site-name">网站名称:</label>
+                <input type="text" id="edit-site-name" required>
+                <label for="edit-site-url">网站链接:</label>
+                <input type="url" id="edit-site-url" required>
+                <label>背景色:</label>
+                <div id="color-picker">
+                    <div class="color-option" data-color="" title="默认">默认</div>
+                    <div class="color-option" data-color="#B2F2BB" style="background-color: #B2F2BB;" title="薄荷绿"></div>
+                    <div class="color-option" data-color="#FFB3BA" style="background-color: #FFB3BA;" title="浅珊瑚色"></div>
+                    <div class="color-option" data-color="#A3D9FF" style="background-color: #A3D9FF;" title="淡蓝色"></div>
+                    <div class="color-option" data-color="#D6B3FF" style="background-color: #D6B3FF;" title="薰衣草紫"></div>
+                    <div class="color-option" data-color="#FFF3B0" style="background-color: #FFF3B0;" title="浅金色"></div>
+                </div>
+                <input type="hidden" id="edit-site-bg-color" value="">
+                <button type="submit">保存</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- 悬浮添加按钮 -->
+    <div id="floating-add-btn" class="floating-btn">
+        +
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

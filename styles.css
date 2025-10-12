@@ -1,0 +1,443 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+    color: white;
+}
+
+header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.add-website-form {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+}
+
+.add-website-form input, .add-website-form select {
+    padding: 12px 15px;
+    border: none;
+    border-radius: 5px; /* 减少圆角 */
+    font-size: 1rem;
+    min-width: 150px;
+    outline: none;
+}
+
+.add-website-form button {
+    padding: 12px 25px;
+    background: #ff6b6b;
+    color: white;
+    border: none;
+    border-radius: 5px; /* 减少圆角 */
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.add-website-form button:hover {
+    background: #ff5252;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* 颜色选择器样式 */
+#color-picker {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+}
+
+.color-option {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid #ddd;
+    transition: all 0.3s ease;
+}
+
+.color-option:hover {
+    transform: scale(1.1);
+    border-color: #333;
+}
+
+.color-option.selected {
+    border-color: #333;
+    box-shadow: 0 0 0 2px #333;
+}
+
+.color-option[title="默认"] {
+    background: linear-gradient(45deg, #fff, #f0f0f0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: #666;
+}
+
+.categories-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* 增加分类显示box间距为10 */
+}
+
+.category-section {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px; /* 减少圆角 */
+    padding: 20px;
+    backdrop-filter: blur(10px);
+    margin-bottom: 20px;
+}
+
+.category-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    color: white;
+}
+
+.category-title {
+    font-size: 1.8rem;
+    font-weight: bold;
+}
+
+.delete-category-btn {
+    background: #ff6b6b;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.delete-category-btn:hover {
+    background: #ff5252;
+    transform: scale(1.1);
+}
+
+.websites-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.website-card {
+    background: white;
+    border-radius: 10px; /* 减少圆角 */
+    padding: 20px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    opacity: 1;
+    transform: translateY(0);
+    cursor: move; /* 添加拖动光标 */
+}
+
+/* 拖动时的样式 */
+.website-card.dragging {
+    opacity: 0.5;
+    transform: rotate(5deg);
+}
+
+.website-card.drag-over {
+    border-top: 2px solid #667eea;
+}
+
+.website-card.hidden {
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.website-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+}
+
+.website-card h3 {
+    font-size: 1.3rem;
+    margin-bottom: 10px;
+    color: #333;
+    word-break: break-word;
+}
+
+.website-card a {
+    color: #667eea;
+    text-decoration: none;
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+    word-break: break-all;
+}
+
+.website-card a:hover {
+    text-decoration: underline;
+}
+
+.card-actions {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    display: flex;
+    gap: 5px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 10;
+}
+
+/* 创建一个专门的区域用于触发操作按钮显示 */
+.card-hover-area {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 60px;
+    height: 60px;
+    z-index: 9;
+}
+
+.card-hover-area:hover ~ .card-actions,
+.card-actions:hover {
+    opacity: 1;
+}
+
+.action-btn {
+    background: none; /* 移除背景色 */
+    color: #666;
+    border: none;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: none;
+}
+
+.action-btn.edit {
+    background: none;
+    color: #666; /* 使用深灰色而不是绿色 */
+}
+
+.action-btn.delete {
+    background: none;
+    color: #ff0000; /* 红色删除按钮 */
+}
+
+.action-btn:hover {
+    transform: scale(1.1);
+    color: #333;
+}
+
+.action-btn.edit:hover {
+    background: none;
+    color: #333;
+}
+
+.action-btn.delete:hover {
+    background: none;
+    color: #cc0000; /* 深红色 */
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 10px;
+    width: 80%;
+    max-width: 500px;
+    position: relative;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+}
+
+.close:hover {
+    color: black;
+}
+
+.modal-content h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.modal-content form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.modal-content label {
+    font-weight: bold;
+    color: #333;
+}
+
+.modal-content input, .modal-content select {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px; /* 减少圆角 */
+    font-size: 1rem;
+}
+
+.modal-content button {
+    padding: 12px;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 5px; /* 减少圆角 */
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.modal-content button:hover {
+    background: #5a6fd8;
+}
+
+/* 拖动句柄样式 */
+.drag-handle {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 60px;
+    height: 60px;
+    cursor: move;
+    z-index: 5;
+}
+
+/* 当鼠标悬停在拖动句柄上时显示视觉反馈 */
+.drag-handle:hover::after {
+    content: '⋮⋮';
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    font-size: 14px;
+    color: #666;
+    opacity: 0.7;
+}
+
+/* 默认情况下不显示移动光标 */
+.website-card {
+    cursor: default;
+}
+
+/* 仅在拖动句柄区域显示移动光标 */
+.drag-handle:hover {
+    cursor: move;
+}
+
+/* 拖动占位符样式 */
+.drag-placeholder {
+    border: 2px dashed #667eea;
+    background: rgba(102, 126, 234, 0.1);
+    border-radius: 10px;
+    height: 100px;
+    margin-bottom: 20px;
+}
+
+/* 悬浮按钮样式 */
+.floating-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    background: #ff6b6b;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+    z-index: 100;
+}
+
+.floating-btn:hover {
+    background: #ff5252;
+    transform: scale(1.1);
+}
+
+@media (max-width: 768px) {
+    .add-website-form {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .add-website-form input, .add-website-form select {
+        width: 100%;
+        max-width: 300px;
+    }
+    
+    .websites-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+    
+    .modal-content {
+        width: 90%;
+        margin: 25% auto;
+    }
+    
+    .floating-btn {
+        bottom: 20px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+        font-size: 24px;
+    }
+}
