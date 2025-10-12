@@ -1,0 +1,52 @@
+{
+  "categories": [
+    {
+      "id": "work",
+      "name": "工作",
+      "websites": [
+        {
+          "id": "site_1",
+          "name": "项目管理",
+          "url": "https://example.com/project",
+          "backgroundColor": "#A3D9FF"
+        },
+        {
+          "id": "site_2",
+          "name": "代码仓库",
+          "url": "https://github.com",
+          "backgroundColor": "#B2F2BB"
+        }
+      ]
+    },
+    {
+      "id": "study",
+      "name": "学习",
+      "websites": [
+        {
+          "id": "site_3",
+          "name": "在线课程",
+          "url": "https://example.com/courses",
+          "backgroundColor": "#FFF3B0"
+        },
+        {
+          "id": "site_4",
+          "name": "技术文档",
+          "url": "https://developer.mozilla.org",
+          "backgroundColor": "#FFB3BA"
+        }
+      ]
+    },
+    {
+      "id": "entertainment",
+      "name": "娱乐",
+      "websites": [
+        {
+          "id": "site_5",
+          "name": "视频网站",
+          "url": "https://example.com/video",
+          "backgroundColor": "#D6B3FF"
+        }
+      ]
+    }
+  ]
+}
