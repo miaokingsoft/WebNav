@@ -16,6 +16,9 @@ A simple and easy-to-use personal website navigation page that supports adding, 
 - Customizable website card background colors
 - Drag and drop sorting functionality
 
+
+![img](/index.png)
+
 ## Tech Stack
 
 - Frontend: HTML, CSS, JavaScript (native implementation, no framework dependencies)
@@ -54,4 +57,5 @@ All data is automatically saved to the `data.json` file
 ## Notes
 
 - Data is saved in the `data.json` file in the project root directory
+
 - Ensure the server has file write permissions
