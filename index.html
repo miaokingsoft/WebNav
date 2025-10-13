@@ -7,7 +7,30 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
+    <!-- 九宫格验证界面 -->
+    <div id="grid-verify" class="grid-verify-container">
+        <div class="verify-content">
+            <h1>验证访问</h1>
+            <p class="verify-hint">请按正确顺序点击汉字</p>
+            <div class="grid-container">
+                <div class="grid-item" data-num="7">书</div>
+                <div class="grid-item" data-num="8">山</div>
+                <div class="grid-item" data-num="9">路</div>
+                <div class="grid-item" data-num="4">海</div>
+                <div class="grid-item" data-num="5">无</div>
+                <div class="grid-item" data-num="6">勤</div>
+                <div class="grid-item" data-num="1">学</div>
+                <div class="grid-item" data-num="2">涯</div>
+                <div class="grid-item" data-num="3">苦</div>
+            </div>
+            <div class="verify-input-display">
+                <span id="input-display">已输入: </span>
+            </div>
+            <button id="reset-btn" class="reset-btn">重置</button>
+        </div>
+    </div>
+    
+    <div class="container" id="main-container" style="display: none;">
         <header>
             <h1>个人网站导航</h1>
         </header>
@@ -70,5 +93,67 @@
     </div>
     
     <script src="script.js"></script>
+    <script>
+        // 九宫格验证逻辑
+        const correctSequence = '14863';
+        let userInput = '';
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            const gridItems = document.querySelectorAll('.grid-item');
+            const inputDisplay = document.getElementById('input-display');
+            const resetBtn = document.getElementById('reset-btn');
+            const gridVerify = document.getElementById('grid-verify');
+            const mainContainer = document.getElementById('main-container');
+            
+            // 检查是否已验证过
+            if (sessionStorage.getItem('verified') === 'true') {
+                gridVerify.style.display = 'none';
+                mainContainer.style.display = 'block';
+                return;
+            }
+            
+            gridItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const num = item.getAttribute('data-num');
+                    userInput += num;
+                    inputDisplay.textContent = '已输入: ' + userInput;
+                    
+                    // 添加点击效果
+                    item.classList.add('clicked');
+                    setTimeout(() => {
+                        item.classList.remove('clicked');
+                    }, 300);
+                    
+                    // 检查是否达到正确长度
+                    if (userInput.length === correctSequence.length) {
+                        if (userInput === correctSequence) {
+                            // 验证成功
+                            sessionStorage.setItem('verified', 'true');
+                            gridVerify.classList.add('verify-success');
+                            setTimeout(() => {
+                                gridVerify.style.display = 'none';
+                                mainContainer.style.display = 'block';
+                            }, 500);
+                        } else {
+                            // 验证失败
+                            inputDisplay.textContent = '错误，请重试';
+                            inputDisplay.style.color = '#ff6b6b';
+                            setTimeout(() => {
+                                userInput = '';
+                                inputDisplay.textContent = '已输入: ';
+                                inputDisplay.style.color = 'white';
+                            }, 1000);
+                        }
+                    }
+                });
+            });
+            
+            resetBtn.addEventListener('click', () => {
+                userInput = '';
+                inputDisplay.textContent = '已输入: ';
+                inputDisplay.style.color = 'white';
+            });
+        });
+    </script>
 </body>
 </html>
