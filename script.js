@@ -478,146 +478,235 @@ class WebsiteNavigator {
     bindDragEvents() {
         const websiteCards = document.querySelectorAll('.website-card');
         websiteCards.forEach(card => {
-            // 移除全局的 draggable 属性
-            card.removeAttribute('draggable');
-            
-            // 创建拖动激活区域（左上角）
+            // 确保每个卡片都有拖动句柄
             let dragHandle = card.querySelector('.drag-handle');
             if (!dragHandle) {
                 dragHandle = document.createElement('div');
                 dragHandle.className = 'drag-handle';
+                dragHandle.title = '拖动排序';
                 card.appendChild(dragHandle);
             }
             
-            // 为拖动句柄设置事件
-            dragHandle.addEventListener('mouseenter', (e) => {
-                // 当鼠标进入拖动句柄区域时，设置元素为可拖动
-                card.setAttribute('draggable', 'true');
-            });
-            
-            dragHandle.addEventListener('mouseleave', (e) => {
-                // 当鼠标离开拖动句柄区域时，移除可拖动属性
-                card.removeAttribute('draggable');
-            });
+            // 设置拖动属性
+            card.setAttribute('draggable', 'true');
             
             // 拖动开始事件
             card.addEventListener('dragstart', (e) => {
-                // 只有当鼠标在左上角区域时才允许拖动
-                const rect = card.getBoundingClientRect();
-                const isTopLeft = e.clientX < rect.left + 60 && e.clientY < rect.top + 60;
-                
-                if (!isTopLeft) {
-                    e.preventDefault();
-                    return;
-                }
-                
                 this.draggedElement = card;
                 this.draggedCategoryId = card.closest('.websites-grid').id.replace('websites-', '');
                 card.classList.add('dragging');
                 e.dataTransfer.effectAllowed = 'move';
-                // 移除可能触发CSP警告的setData调用
-                // e.dataTransfer.setData('text/html', card.innerHTML);
+                
+                // 延迟添加占位符，避免初始闪烁
+                setTimeout(() => {
+                    if (this.draggedElement) {
+                        // 创建初始占位符
+                        this.createInitialPlaceholder(card);
+                    }
+                }, 0);
             });
             
             // 拖动结束事件
             card.addEventListener('dragend', (e) => {
                 card.classList.remove('dragging');
                 // 移除所有占位符
-                const placeholders = document.querySelectorAll('.drag-placeholder');
-                placeholders.forEach(placeholder => placeholder.remove());
-                // 重置为不可拖动
-                card.removeAttribute('draggable');
+                this.clearPlaceholders();
+                this.draggedElement = null;
+                this.draggedCategoryId = null;
             });
             
             // 拖动到元素上时触发
             card.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                e.dataTransfer.dropEffect = 'move';
-                
-                if (card !== this.draggedElement) {
-                    // 创建占位符
-                    const placeholder = document.createElement('div');
-                    placeholder.className = 'drag-placeholder';
-                    placeholder.style.height = this.draggedElement.offsetHeight + 'px';
-                    
-                    // 插入占位符
-                    const rect = card.getBoundingClientRect();
-                    const midpoint = rect.top + rect.height / 2;
-                    
-                    if (e.clientY < midpoint) {
-                        card.parentNode.insertBefore(placeholder, card);
-                    } else {
-                        card.parentNode.insertBefore(placeholder, card.nextSibling);
-                    }
-                }
+                this.handleDragOver(card, e);
             });
             
             // 拖动离开元素时触发
             card.addEventListener('dragleave', (e) => {
-                // 移除占位符
-                const placeholders = card.parentNode.querySelectorAll('.drag-placeholder');
-                placeholders.forEach(placeholder => {
-                    if (placeholder !== e.relatedTarget) {
-                        placeholder.remove();
-                    }
-                });
+                // 不再立即移除占位符，避免闪烁
             });
             
             // 拖动放置事件
             card.addEventListener('drop', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                
-                if (this.draggedElement !== card) {
-                    // 找到占位符
-                    const placeholder = card.parentNode.querySelector('.drag-placeholder');
-                    if (placeholder) {
-                        // 移动元素到新位置
-                        placeholder.parentNode.insertBefore(this.draggedElement, placeholder);
-                        placeholder.remove();
-                        
-                        // 更新数据顺序
-                        this.updateWebsiteOrder(this.draggedCategoryId);
-                    }
-                }
+                this.handleDrop(card, e);
             });
         });
         
-        // 为分类容器绑定拖动事件
+        // 为分类容器绑定拖动事件（处理拖动到空位置的情况）
         const websiteGrids = document.querySelectorAll('.websites-grid');
         websiteGrids.forEach(grid => {
             grid.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                e.dataTransfer.dropEffect = 'move';
-                
-                // 如果容器为空，直接添加占位符
-                if (grid.children.length === 0 || (grid.children.length === 1 && grid.querySelector('.drag-placeholder'))) {
-                    // 创建占位符
-                    let placeholder = grid.querySelector('.drag-placeholder');
-                    if (!placeholder) {
-                        placeholder = document.createElement('div');
-                        placeholder.className = 'drag-placeholder';
-                        grid.appendChild(placeholder);
-                    }
-                }
+                this.handleEmptyGridDragOver(grid, e);
             });
             
             grid.addEventListener('drop', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                
-                // 找到占位符
-                const placeholder = grid.querySelector('.drag-placeholder');
-                if (placeholder && this.draggedElement) {
-                    // 移动元素到新位置
-                    grid.appendChild(this.draggedElement);
-                    placeholder.remove();
-                    
-                    // 更新数据顺序
-                    const categoryId = grid.id.replace('websites-', '');
-                    this.updateWebsiteOrder(categoryId);
-                }
+                this.handleGridDrop(grid, e);
             });
+        });
+    }
+
+    // 创建初始占位符
+    createInitialPlaceholder(card) {
+        // 创建占位符
+        const placeholder = document.createElement('div');
+        placeholder.className = 'drag-placeholder';
+        placeholder.style.height = card.offsetHeight + 'px';
+        placeholder.style.marginBottom = '20px';
+        
+        // 插入占位符到被拖动元素的原始位置
+        card.parentNode.insertBefore(placeholder, card);
+    }
+
+    // 处理拖动到卡片上
+    handleDragOver(card, e) {
+        // 阻止默认行为
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        
+        // 只在同一分类内允许拖动
+        const targetGridId = card.closest('.websites-grid').id.replace('websites-', '');
+        if (targetGridId !== this.draggedCategoryId) {
+            return;
+        }
+        
+        // 如果拖动的是自己，不处理
+        if (card === this.draggedElement) {
+            return;
+        }
+        
+        // 计算鼠标相对于卡片的位置
+        const rect = card.getBoundingClientRect();
+        const offset = e.clientY - rect.top;
+        const height = rect.height;
+        
+        // 查找现有的占位符
+        const existingPlaceholder = card.parentNode.querySelector('.drag-placeholder');
+        
+        // 如果占位符已经存在且位置正确，不重新创建
+        if (existingPlaceholder) {
+            const placeholderIndex = Array.from(card.parentNode.children).indexOf(existingPlaceholder);
+            const cardIndex = Array.from(card.parentNode.children).indexOf(card);
+            
+            // 如果占位符已经在正确位置（在卡片前或后），不处理
+            if ((placeholderIndex === cardIndex - 1 && offset < height / 2) || 
+                (placeholderIndex === cardIndex + 1 && offset >= height / 2)) {
+                return;
+            }
+        }
+        
+        // 清除所有现有占位符
+        this.clearPlaceholders();
+        
+        // 创建新的占位符
+        const placeholder = document.createElement('div');
+        placeholder.className = 'drag-placeholder';
+        placeholder.style.height = this.draggedElement.offsetHeight + 'px';
+        placeholder.style.marginBottom = '20px';
+        
+        // 根据鼠标位置决定插入位置
+        if (offset < height / 3) {
+            // 插入到卡片前面
+            card.parentNode.insertBefore(placeholder, card);
+        } else {
+            // 插入到卡片后面
+            card.parentNode.insertBefore(placeholder, card.nextSibling);
+        }
+    }
+
+    // 处理拖动到空网格
+    handleEmptyGridDragOver(grid, e) {
+        // 阻止默认行为
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        
+        // 如果网格已经有子元素（非占位符），不处理
+        if (grid.children.length > 0 && !grid.querySelector('.drag-placeholder')) {
+            return;
+        }
+        
+        // 如果已经有占位符，不重复创建
+        if (grid.querySelector('.drag-placeholder')) {
+            return;
+        }
+        
+        // 清除其他占位符
+        this.clearPlaceholders();
+        
+        // 创建占位符
+        const placeholder = document.createElement('div');
+        placeholder.className = 'drag-placeholder';
+        placeholder.style.height = this.draggedElement.offsetHeight + 'px';
+        placeholder.style.marginBottom = '20px';
+        grid.appendChild(placeholder);
+    }
+
+    // 处理放置事件
+    handleDrop(card, e) {
+        // 获取父容器
+        const parentContainer = card.parentNode;
+        
+        // 先尝试找到占位符
+        let placeholder = parentContainer.querySelector('.drag-placeholder');
+        
+        if (placeholder) {
+            // 如果有占位符，将元素插入到占位符位置
+            placeholder.parentNode.insertBefore(this.draggedElement, placeholder);
+        } else {
+            // 如果没有占位符，计算鼠标位置并决定插入位置
+            const rect = card.getBoundingClientRect();
+            const offset = e.clientY - rect.top;
+            const height = rect.height;
+            
+            // 根据鼠标位置决定插入到卡片前还是卡片后
+            if (offset < height / 2) {
+                // 插入到卡片前面
+                parentContainer.insertBefore(this.draggedElement, card);
+            } else {
+                // 插入到卡片后面
+                parentContainer.insertBefore(this.draggedElement, card.nextSibling);
+            }
+        }
+        
+        // 更新数据顺序
+        this.updateWebsiteOrder(this.draggedCategoryId);
+        
+        // 清除所有占位符
+        this.clearPlaceholders();
+    }
+
+    // 处理网格放置事件
+    handleGridDrop(grid, e) {
+        // 找到占位符
+        const placeholder = grid.querySelector('.drag-placeholder');
+        if (placeholder) {
+            // 移动元素到占位符位置
+            placeholder.parentNode.insertBefore(this.draggedElement, placeholder);
+            
+            // 更新数据顺序
+            this.updateWebsiteOrder(this.draggedCategoryId);
+        }
+        
+        // 清除所有占位符
+        this.clearPlaceholders();
+    }
+
+    // 清除所有占位符
+    clearPlaceholders() {
+        const placeholders = document.querySelectorAll('.drag-placeholder');
+        placeholders.forEach(placeholder => {
+            // 添加淡出效果
+            placeholder.style.opacity = '0';
+            placeholder.style.transition = 'opacity 0.2s ease';
+            
+            // 延迟移除元素
+            setTimeout(() => {
+                if (placeholder.parentNode) {
+                    placeholder.parentNode.removeChild(placeholder);
+                }
+            }, 200);
         });
     }
 

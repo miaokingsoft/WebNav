@@ -4,7 +4,7 @@ const path = require('path');
 const cors = require('cors');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3003;
 
 // 中间件
 app.use(cors());
@@ -18,7 +18,7 @@ app.post('/api/save', (req, res) => {
     try {
         const data = req.body;
         
-        // 验证数据格式 - 现在是包含categories的对象
+        // 验证数据格式 - 现是是包含categories的对象
         if (!data || !Array.isArray(data.categories)) {
             return res.status(400).json({ error: '数据格式错误' });
         }
